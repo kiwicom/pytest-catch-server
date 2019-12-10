@@ -1,61 +1,123 @@
-def test_bar_fixture(testdir):
-    """Make sure that pytest accepts our fixture."""
-
-    # create a temporary pytest test module
+def test_catch_server__get(testdir):
     testdir.makepyfile(
         """
-        def test_sth(bar):
-            assert bar == "europython2015"
-    """
-    )
+        import urllib.request
 
-    # run pytest with the following cmd args
-    result = testdir.runpytest("--foo=europython2015", "-v")
+        def test_get(catch_server):
+            url = "http://{cs.host}:{cs.port}/get_it".format(cs=catch_server)
+            request = urllib.request.Request(url, method="GET")
 
-    # fnmatch_lines does an assertion internally
-    result.stdout.fnmatch_lines(
-        ["*::test_sth PASSED*",]
-    )
+            with urllib.request.urlopen(request) as response:
+                assert response.status == 200
+                assert response.read() == b"OK"
 
-    # make sure that that we get a '0' exit code for the testsuite
-    assert result.ret == 0
-
-
-def test_help_message(testdir):
-    result = testdir.runpytest("--help",)
-    # fnmatch_lines does an assertion internally
-    result.stdout.fnmatch_lines(
-        ["catch-server:", '*--foo=DEST_FOO*Set the value for the fixture "bar".',]
-    )
-
-
-def test_hello_ini_setting(testdir):
-    testdir.makeini(
+            assert catch_server.requests == [
+                {"method": "GET", "path": "/get_it", "data": b""},
+            ]
         """
-        [pytest]
-        HELLO = world
-    """
-    )
-
-    testdir.makepyfile(
-        """
-        import pytest
-
-        @pytest.fixture
-        def hello(request):
-            return request.config.getini('HELLO')
-
-        def test_hello_world(hello):
-            assert hello == 'world'
-    """
     )
 
     result = testdir.runpytest("-v")
 
-    # fnmatch_lines does an assertion internally
-    result.stdout.fnmatch_lines(
-        ["*::test_hello_world PASSED*",]
+    result.stdout.fnmatch_lines(["*::test_get PASSED*"])
+    assert result.ret == 0
+
+
+def test_catch_server__post(testdir):
+    testdir.makepyfile(
+        """
+        import urllib.request
+
+        def test_post(catch_server):
+            url = "http://{cs.host}:{cs.port}/post_it".format(cs=catch_server)
+            request = urllib.request.Request(url, method="POST", data=b"something")
+
+            with urllib.request.urlopen(request) as response:
+                assert response.status == 200
+                assert response.read() == b"OK"
+
+            assert catch_server.requests == [
+                {"method": "POST", "path": "/post_it", "data": b"something"},
+            ]
+        """
     )
 
-    # make sure that that we get a '0' exit code for the testsuite
+    result = testdir.runpytest("-v")
+
+    result.stdout.fnmatch_lines(["*::test_post PASSED*"])
+    assert result.ret == 0
+
+
+def test_catch_server__put(testdir):
+    testdir.makepyfile(
+        """
+        import urllib.request
+
+        def test_put(catch_server):
+            url = "http://{cs.host}:{cs.port}/put_it".format(cs=catch_server)
+            request = urllib.request.Request(url, method="PUT", data=b"other data")
+
+            with urllib.request.urlopen(request) as response:
+                assert response.status == 200
+                assert response.read() == b"OK"
+
+            assert catch_server.requests == [
+                {"method": "PUT", "path": "/put_it", "data": b"other data"},
+            ]
+        """
+    )
+
+    result = testdir.runpytest("-v")
+
+    result.stdout.fnmatch_lines(["*::test_put PASSED*"])
+    assert result.ret == 0
+
+
+def test_catch_server__patch(testdir):
+    testdir.makepyfile(
+        """
+        import urllib.request
+
+        def test_patch(catch_server):
+            url = "http://{cs.host}:{cs.port}/patch_it".format(cs=catch_server)
+            request = urllib.request.Request(url, method="PATCH", data=b'{"x": 42}')
+
+            with urllib.request.urlopen(request) as response:
+                assert response.status == 200
+                assert response.read() == b"OK"
+
+            assert catch_server.requests == [
+                {"method": "PATCH", "path": "/patch_it", "data": b'{"x": 42}'},
+            ]
+        """
+    )
+
+    result = testdir.runpytest("-v")
+
+    result.stdout.fnmatch_lines(["*::test_patch PASSED*"])
+    assert result.ret == 0
+
+
+def test_catch_server__delete(testdir):
+    testdir.makepyfile(
+        """
+        import urllib.request
+
+        def test_delete(catch_server):
+            url = "http://{cs.host}:{cs.port}/delete_it".format(cs=catch_server)
+            request = urllib.request.Request(url, method="DELETE")
+
+            with urllib.request.urlopen(request) as response:
+                assert response.status == 200
+                assert response.read() == b"OK"
+
+            assert catch_server.requests == [
+                {"method": "DELETE", "path": "/delete_it", "data": b""},
+            ]
+        """
+    )
+
+    result = testdir.runpytest("-v")
+
+    result.stdout.fnmatch_lines(["*::test_delete PASSED*"])
     assert result.ret == 0
