@@ -41,7 +41,7 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def catch_server_port():
     """Return free port."""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -49,9 +49,9 @@ def catch_server_port():
         return s.getsockname()[1]
 
 
-@pytest.fixture
-def catch_server(catch_server_port):
-    """Run catch server in a thread.
+@pytest.fixture(scope="session")
+def background_catch_server(catch_server_port):
+    """Run catch server in a thread for whole session.
 
     Return `SimpleNamespace(host, port, requests)` where `requests` are list of
     catched requests.
@@ -70,3 +70,17 @@ def catch_server(catch_server_port):
 
     server.shutdown()
     server.server_close()
+
+
+@pytest.fixture
+def catch_server(background_catch_server):
+    """Return catch server and flushes catched requests between each test.
+
+    Return `SimpleNamespace(host, port, requests)` where `requests` are list of
+    catched requests.
+    """
+    # flush requests before use
+    background_catch_server.requests.clear()
+    yield background_catch_server
+    # flush requests after use
+    background_catch_server.requests.clear()
