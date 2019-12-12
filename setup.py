@@ -22,6 +22,7 @@ setup(
     url="https://github.com/kiwicom/pytest-catch-server",
     description="Pytest plugin with server for catching HTTP requests.",
     long_description=read("README.md"),
+    long_description_content_type='text/markdown',
     py_modules=["pytest_catch_server"],
     python_requires=">=3.4",
     install_requires=["pytest>=3.5.0"],
