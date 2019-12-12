@@ -13,7 +13,7 @@ def read(fname):
 
 setup(
     name="pytest-catch-server",
-    version="0.1.0",
+    version="1.0.0",
     author="Jan Bednařík",
     author_email="jan.bednarik@gmail.com",
     maintainer="Jan Bednařík",
@@ -21,12 +21,12 @@ setup(
     license="MIT",
     url="https://github.com/kiwicom/pytest-catch-server",
     description="Pytest plugin with server for catching HTTP requests.",
-    long_description=read("README.rst"),
+    long_description=read("README.md"),
     py_modules=["pytest_catch_server"],
     python_requires=">=3.4",
     install_requires=["pytest>=3.5.0"],
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Framework :: Pytest",
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Testing",
@@ -36,8 +36,8 @@ setup(
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: Implementation :: CPython",
-        "Programming Language :: Python :: Implementation :: PyPy",
         "Operating System :: OS Independent",
         "License :: OSI Approved :: MIT License",
     ],
